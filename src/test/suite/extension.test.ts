@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 const TEST_FILE = path.join(__dirname, '..', 'fixtures', 'simple.bpmn');
 
 suite('Extension Test Suite', () => {
+
   before(() => {
     vscode.window.showInformationMessage('Start all tests.');
   });
