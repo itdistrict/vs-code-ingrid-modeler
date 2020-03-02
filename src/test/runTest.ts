@@ -1,7 +1,5 @@
 import * as path from 'path';
 
-import { cp } from 'shelljs';
-
 import { runTests } from 'vscode-test';
 
 async function main() {
@@ -21,13 +19,4 @@ async function main() {
   }
 }
 
-function copyTestFiles() {
-  const src = path.resolve(__dirname, '../..', 'src', 'test', 'fixtures');
-
-  const dest = path.resolve(__dirname, 'fixtures');
-
-  cp('-R', src, dest);
-}
-
-copyTestFiles();
 main();

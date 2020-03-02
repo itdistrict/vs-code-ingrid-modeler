@@ -24,7 +24,7 @@ export class EditingProvider implements vscode.TextDocumentContentProvider {
       modelerDistro: this.getUri('node_modules', 'bpmn-js', 'dist', 'bpmn-modeler.development.js'),
       diagramStyles: this.getUri('node_modules', 'bpmn-js', 'dist', 'assets', 'diagram-js.css'),
       bpmnFont: this.getUri('node_modules', 'bpmn-js', 'dist', 'assets', 'bpmn-font', 'css', 'bpmn.css'),
-      modelerStyles: this.getUri('out', 'assets', 'modeler.css'),
+      modelerStyles: this.getUri('dist', 'assets', 'modeler.css'),
       resourceUri: uri
     });
 

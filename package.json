@@ -18,7 +18,7 @@
     "onCommand:extension.bpmn-io.edit",
     "onWebviewPanel:bpmn-io.edit"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension",
   "contributes": {
     "languages": [
       {
@@ -68,14 +68,18 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "run-s compile:clean compile:ts compile:assets",
-    "compile:ts": "tsc -p ./",
-    "compile:clean": "rm -rf out",
-    "compile:assets": "cp -r src/assets out",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js"
+    "all": "run-s clean test",
+    "vscode:prepublish": "run-s clean compile",
+    "clean": "rm -rf {out,dist}",
+    "compile": "run-s compile:ts compile:assets",
+    "compile:ts": "webpack --mode production",
+    "compile:assets": "cp -r src/assets dist",
+    "watch": "webpack --mode development --watch",
+    "pretest": "run-s compile test-compile",
+    "test": "node ./out/test/runTest.js",
+    "test-compile": "run-s test-compile:ts test-compile:assets",
+    "test-compile:ts": "tsc -p .",
+    "test-compile:assets": "cp -r ./src/test/fixtures ./out/test"
   },
   "devDependencies": {
     "@types/chai": "^4.2.7",
@@ -84,18 +88,19 @@
     "@types/node": "^12.12.14",
     "@types/shelljs": "^0.8.6",
     "@types/vscode": "^1.38.0",
+    "bpmn-js": "^6.3.1",
     "chai": "^4.2.0",
     "glob": "^7.1.6",
     "mocha": "^6.2.2",
     "npm-run-all": "^4.1.5",
     "shelljs": "^0.8.3",
+    "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-no-unused-expression-chai": "^0.1.4",
     "typescript": "^3.7.2",
-    "vscode-test": "^1.2.3"
-  },
-  "dependencies": {
-    "bpmn-js": "^6.3.1"
+    "vscode-test": "^1.2.3",
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11"
   }
 }
