@@ -1,12 +1,17 @@
 'use strict';
 import * as vscode from 'vscode';
+import * as path from 'path';
+
+const fs = require('fs');
 
 export class BpmnModelerBuilder {
   contents: string;
+  tmplContent: string;
   resources: any;
 
-  public constructor(contents: string, resources: any) {
+  public constructor(contents: string, tmplContent: string, resources: any) {
     this.contents = contents;
+    this.tmplContent = tmplContent;
     this.resources = resources;
   }
 
@@ -16,125 +21,13 @@ export class BpmnModelerBuilder {
 
   public buildModelerView(): string {
     this.contents = this.removeNewLines(this.contents);
-
-    const head = `<!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8" />
-          <title>BPMN Preview</title>
-
-          <!-- viewer distro (with pan and zoom) -->
-          <script src="${this.resources.modelerDistro}"></script>
-
-          <!-- required modeler styles -->
-          <link rel="stylesheet" href="${this.resources.diagramStyles}">
-          <link rel="stylesheet" href="${this.resources.bpmnFont}">
-
-          <link rel="stylesheet" href="${this.resources.modelerStyles}">
-
-          <style>
-            /*
-             * Will be otherwise overridden by VSCode default styles
-             */
-            .djs-context-pad,
-            .djs-popup {
-              color: black;
-            }
-          </style>
-        </head>`;
-
-    const body = `
-      <body>
-        <div class="content">
-          <div id="canvas"></div>
-        </div>
-
-        <div class="buttons">
-          <div class="spinner"></div>
-        </div>
-
-        <script>
-
-          var vscode = acquireVsCodeApi();
-
-          // persisting
-          vscode.setState({ resourcePath: '${this.resources.resourceUri}'});
-
-          // modeler instance
-          var bpmnModeler = new BpmnJS({
-            container: '#canvas',
-            keyboard: { bindTo: document }
-          });
-
-          keyboardBindings();
-
-          /**
-           * Open diagram in our modeler instance.
-           *
-           * @param {String} bpmnXML diagram to display
-           */
-          function openDiagram(bpmnXML) {
-
-            // import diagram
-            bpmnModeler.importXML(bpmnXML, function(err) {
-
-              if (err) {
-                return console.error('could not import BPMN 2.0 diagram', err);
-              }
-
-            });
-          }
-
-          function saveDiagramChanges(cb) {
-            bpmnModeler.saveXML({ format: true }, function(err, result) {
-              if (err) {
-                return console.error('could not save BPMN 2.0 diagram', err);
-              }
-
-              vscode.postMessage({
-                command: 'saveContent',
-                content: result
-              });
-
-              if (typeof cb === 'function') {
-                cb();
-              }
-            });
-          }
-
-          function saveChanges() {
-            var spinner = document.getElementsByClassName("spinner")[0];
-            spinner.classList.add("active");
-
-            saveDiagramChanges(function() {
-              setTimeout(function() {
-                spinner.classList.remove("active");
-              }, 1000);
-            });
-          }
-
-          function keyboardBindings() {
-            var keyboard = bpmnModeler.get('keyboard');
-
-            keyboard.addListener(function(context) {
-
-              var event = context.keyEvent;
-
-              if (keyboard.isKey(['s', 'S'], event) && keyboard.isCmd(event)) {
-                saveChanges();
-                return true;
-              }
-            });
-          }
-
-          // open diagram
-          openDiagram('${this.contents}');
-        </script>
-      </body>
-    `;
-
-    const tail = ['</html>'].join('\n');
-
-    return head + body + tail;
+    let content = this.tmplContent;
+    content = content.replace("${this.resources.modelerDistro}", this.resources.modelerDistro);
+    content = content.replace("${this.resources.diagramStyles}", this.resources.diagramStyles);
+    content = content.replace("${this.resources.bpmnFont}", this.resources.bpmnFont);
+    content = content.replace("${this.resources.modelerStyles}", this.resources.modelerStyles);
+    content = content.replace("${this.resources.resourceUri}", this.resources.resourceUri);
+    content = content.replace("${this.contents}", this.contents);
+    return content;
   }
 }

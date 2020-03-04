@@ -71,3 +71,47 @@ body, html {
     transform: rotateZ(360deg);
   }
 }
+
+.djs-visual rect {
+  fill: #eceff2 !important;
+  stroke: #eceff2 !important;
+}
+
+.djs-shape .djs-visual {
+  cursor: pointer !important;
+}
+
+.djs-visual text {
+  fill: #3C4858 !important;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji" !important;
+  font-weight: 500 !important;
+}
+
+.djs-connection .djs-visual path {
+  stroke: #434b66 !important;
+  stroke-width: 2px !important;
+}
+
+.djs-shape .djs-visual path {
+  fill: #f3f3f3 !important;
+  stroke: #f3f3f3 !important;
+
+}
+
+.djs-visual polygon {   
+  fill: #242939 !important;
+  stroke: #242939 !important;
+}
+
+.djs-visual circle {
+  stroke: #242939 !important;
+  fill: #eceff2 !important;
+}
+
+.canvas-toolbar {
+  border-bottom: 1px dotted #eee;
+}
+
+.djs-visual .djs-hit {
+  fill: red !important;
+}

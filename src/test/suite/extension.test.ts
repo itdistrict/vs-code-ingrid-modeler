@@ -19,6 +19,20 @@ suite('Extension Test Suite', () => {
     // given
     expect(editor).not.to.be.empty;
   });
+/*
+  test('jsdom without error', async () => {
+
+    // when
+    const jsdom = require("jsdom");
+    const editor = await openFile(TEST_FILE);
+    var elNode = new jsdom.JSDOM(editor.document.getText(), { contentType: "text/xml" })
+      .window.document
+      .querySelector(`bpmn\\:task[id="Task_0zlv465"]`);
+
+    // given
+    expect(elNode).not.to.be.empty;
+  });
+  */
 
 });
 

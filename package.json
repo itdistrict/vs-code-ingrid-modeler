@@ -1,11 +1,11 @@
 {
-  "name": "vs-code-bpmn-io",
-  "displayName": "vs-code-bpmn-io",
-  "description": "VS Code Extension for Displaying and Editing BPMN 2.0 Files, based on bpmn.io",
+  "name": "vs-code-ingrid-modeler",
+  "displayName": "Ingrid Modeler",
+  "description": "VS Code Extension for Creating and Editing Ingrid BPMN 2.0 Files, based on bpmn.io",
   "license": "MIT",
-  "version": "0.7.0",
-  "publisher": "bpmn-io",
-  "repository": "https://github.com/bpmn-io/vs-code-bpmn-io/",
+  "version": "0.1.0",
+  "publisher": "itdistrict",
+  "repository": "https://github.com/itdistrict/vs-code-ingrid-modeler/",
   "engines": {
     "vscode": "^1.38.0"
   },
@@ -84,6 +84,7 @@
     "@types/node": "^12.12.14",
     "@types/shelljs": "^0.8.6",
     "@types/vscode": "^1.38.0",
+    "bufferutil": "^4.0.1",
     "chai": "^4.2.0",
     "glob": "^7.1.6",
     "mocha": "^6.2.2",
@@ -93,9 +94,11 @@
     "tslint-eslint-rules": "^5.4.0",
     "tslint-no-unused-expression-chai": "^0.1.4",
     "typescript": "^3.7.2",
+    "utf-8-validate": "^5.0.2",
     "vscode-test": "^1.2.3"
   },
   "dependencies": {
-    "bpmn-js": "^6.3.1"
+    "bpmn-js": "^6.3.1",
+    "jsdom": "^16.2.0"
   }
 }

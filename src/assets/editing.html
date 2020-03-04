@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>BPMN Preview</title>
+
+    <!-- viewer distro (with pan and zoom) -->
+    <script src="${this.resources.modelerDistro}"></script>
+
+    <!-- required modeler styles -->
+    <link rel="stylesheet" href="${this.resources.diagramStyles}">
+    <link rel="stylesheet" href="${this.resources.bpmnFont}">
+
+    <link rel="stylesheet" href="${this.resources.modelerStyles}">
+
+    <style>
+        /*
+        * Will be otherwise overridden by VSCode default styles
+        */
+        .djs-context-pad,
+        .djs-popup {
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <div id="canvas"></div>
+    </div>
+
+    <div class="buttons">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+
+        var vscode = acquireVsCodeApi();
+        var shiftPressed = false;
+
+        // persisting
+        vscode.setState({ resourcePath: '${this.resources.resourceUri}' });
+
+        // modeler instance
+        var bpmnModeler = new BpmnJS({
+            container: '#canvas',
+            keyboard: { bindTo: document }
+        });
+
+        keyboardBindings();
+
+        // event binding
+        document.body.onclick = function (e) {
+            if (e.shiftKey) {
+                shiftPressed = true;
+            } else {
+                shiftPressed = false;
+            }
+        }
+
+        /**
+         * Open diagram in our modeler instance.
+         *
+         * @param {String} bpmnXML diagram to display
+         */
+        function openDiagram(bpmnXML) {
+
+            // import diagram
+            bpmnModeler.importXML(bpmnXML, function (err) {
+
+                if (err) {
+                    return console.error('could not import BPMN 2.0 diagram', err);
+                }
+
+                var events = [
+                    'element.hover',
+                    'element.out',
+                    'element.click',
+                    'element.dblclick',
+                    'element.mousedown',
+                    'element.mouseup'
+                ];
+                var eventBus = bpmnModeler.get('eventBus');
+
+                events.forEach(function (event) {
+
+                    eventBus.on(event, function (e) {
+
+                        if (event == "element.click" && (e.element.id.startsWith("Task") || e.element.id.startsWith("Activity"))) {
+                            setTimeout(function () {
+                                if (shiftPressed) {
+                                    vscode.postMessage({ command: 'openEditor', id: e.element.id });
+                                }
+                            }, 100);
+                        }
+                    });
+                });
+
+                bpmnModeler.on("element.changed", function (event) {
+                    var element = event.element;
+                    console.log(element, "Changed")
+                });
+
+            });
+        }
+
+        function saveDiagramChanges(cb) {
+            bpmnModeler.saveXML({ format: true }, function (err, result) {
+                if (err) {
+                    return console.error('could not save BPMN 2.0 diagram', err);
+                }
+
+                vscode.postMessage({
+                    command: 'saveContent',
+                    content: result
+                });
+
+                if (typeof cb === 'function') {
+                    cb();
+                }
+            });
+        }
+
+        function saveChanges() {
+            var spinner = document.getElementsByClassName("spinner")[0];
+            spinner.classList.add("active");
+
+            saveDiagramChanges(function () {
+                setTimeout(function () {
+                    spinner.classList.remove("active");
+                }, 1000);
+            });
+        }
+
+        function keyboardBindings() {
+            var keyboard = bpmnModeler.get('keyboard');
+
+            keyboard.addListener(function (context) {
+
+                var event = context.keyEvent;
+
+                if (keyboard.isKey(['s', 'S'], event) && keyboard.isCmd(event)) {
+                    saveChanges();
+                    return true;
+                }
+            });
+        }
+
+        // open diagram
+        openDiagram('${this.contents}');
+    </script>
+</body>
+
+</html>
