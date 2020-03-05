@@ -38,6 +38,7 @@
 
         var vscode = acquireVsCodeApi();
         var shiftPressed = false;
+        var lastMarker = "";
 
         // persisting
         vscode.setState({ resourcePath: '${this.resources.resourceUri}' });
@@ -86,10 +87,15 @@
                 events.forEach(function (event) {
 
                     eventBus.on(event, function (e) {
-
-                        if (event == "element.click" && (e.element.id.startsWith("Task") || e.element.id.startsWith("Activity"))) {
+                        if (event == "element.click" && checkTypes(e.element.id, ["Task", "Activity", "StartEvent", "EndEvent", "Gateway"])) {
                             setTimeout(function () {
                                 if (shiftPressed) {
+                                    let canvas = bpmnModeler.get('canvas');
+                                    if (lastMarker) {
+                                        canvas.removeMarker(lastMarker, 'highlight');
+                                    }
+                                    lastMarker = e.element.id;
+                                    canvas.addMarker(e.element.id, 'highlight');
                                     vscode.postMessage({ command: 'openEditor', id: e.element.id });
                                 }
                             }, 100);
@@ -103,6 +109,15 @@
                 });
 
             });
+        }
+
+        function checkTypes(id, types) {
+            for (var i = 0; i < types.length; i++) {
+                if (id.startsWith(types[i])) {
+                    return true
+                }
+            }
+            return false
         }
 
         function saveDiagramChanges(cb) {

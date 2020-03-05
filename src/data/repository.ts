@@ -44,9 +44,11 @@ class BPMNFile {
     lastElement: String
     uri: vscode.Uri
     tmpFile: vscode.Uri
+    unsaved: boolean
     constructor(uri: vscode.Uri, tmpFile: vscode.Uri) {
         this.lastElement = "";
         this.uri = uri;
         this.tmpFile = tmpFile;
+        this.unsaved = false
     }
 }

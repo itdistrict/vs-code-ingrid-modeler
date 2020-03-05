@@ -77,6 +77,10 @@ body, html {
   stroke: #eceff2 !important;
 }
 
+.highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: green !important; /* color elements as green */
+}
+
 .djs-shape .djs-visual {
   cursor: pointer !important;
 }

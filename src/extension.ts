@@ -68,7 +68,10 @@ function createPanel(
           openEditor(uri, getDocumentationFromElement(uri, message.id), message.id);
           return;
         case 'saveContent':
-          saveFile(uri, message.content);
+
+
+
+          //saveFile(uri, message.content);
           return;
       }
     },
@@ -83,25 +86,40 @@ function getDocumentationFromElement(uri: vscode.Uri, id: String) {
   var content = getFileContent(uri);
   var elNode = new jsdom.JSDOM(content, { contentType: "text/xml" })
     .window.document
-    .querySelector(`bpmn2\\:task[id="${id}"] > bpmn2\\:documentation`);
+    .querySelector(`[id="${id}"] > bpmn2\\:documentation`);
+
   if (elNode !== null) {
     return elNode.textContent;
   }
   return "";
 }
 
+function makeid(length: number) {
+  var result = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 
 function openEditor(uri: vscode.Uri, content: String, id: String) {
   let tempdir = vscode.workspace.getConfiguration(extName).get('tmpDir') || os.tmpdir();
-  let filepath = tempdir + path.sep + path.basename(uri.fsPath) + ".tmp.tmpl";
+  var filepath = vscode.Uri.file(tempdir + path.sep + path.basename(uri.fsPath) + "." + makeid(5) + ".tmpl");
 
-  if (unsaved) {
-    vscode.window.showErrorMessage("Could not load editor because you have unsaved changes.")
-  } else {
-    saveFile(vscode.Uri.file(filepath), content);
-    repository.newOrUpdateFile(uri, vscode.Uri.file(filepath));
-    repository.updateLastElement(uri, id);
+  var index = repository.getIndex(uri);
+  if (index > -1) {
+    if (repository.cache[index].unsaved) {
+      vscode.window.showErrorMessage("Could not load editor because you have unsaved changes.");
+      return;
+    }
+    filepath = repository.cache[index].tmpFile;
   }
+  saveFile(filepath, content);
+  repository.newOrUpdateFile(uri, filepath);
+  repository.updateLastElement(uri, id);
 
   vscode.workspace
     .openTextDocument(filepath)
@@ -118,7 +136,9 @@ function getFileContent(uri: vscode.Uri) {
 
 function saveFile(uri: vscode.Uri, content: String) {
   const { fsPath: docPath } = uri.with({ scheme: 'vscode-resource' });
-
+  if (!content) {
+    content = "\n";
+  }
   fs.writeFileSync(docPath, content, { encoding: 'utf8' });
 }
 
@@ -230,7 +250,7 @@ vscode.workspace.onDidSaveTextDocument((document) => {
     const dom = new jsdom.JSDOM(getFileContent(repository.cache[index].uri), { contentType: "text/xml" });
     let id = repository.cache[index].lastElement;
 
-    var elNode = dom.window.document.querySelector(`bpmn2\\:task[id="${id}"]`);
+    var elNode = dom.window.document.querySelector(`[id="${id}"]`);
     if (elNode !== null) {
       var elDoc = elNode.querySelector(`bpmn2\\:documentation`)
       if (elDoc !== null) {
@@ -238,7 +258,7 @@ vscode.workspace.onDidSaveTextDocument((document) => {
       } else {
         var element = dom.window.document.createElement("bpmn2:documentation");
         element.textContent = document.getText();
-        element.id = "Documentation_123123123"
+        element.id = "Documentation_" + makeid(8)
         elNode.appendChild(element);
       }
       saveFile(repository.cache[index].uri, dom.serialize());
@@ -247,7 +267,10 @@ vscode.workspace.onDidSaveTextDocument((document) => {
 });
 
 vscode.workspace.onDidChangeTextDocument((document) => {
-  unsaved = document.document.isDirty;
+  var index = repository.getIndexByTmp(document.document.uri);
+  if (index > -1) {
+    repository.cache[index].unsaved = document.document.isDirty;
+  }
 });
 
 
