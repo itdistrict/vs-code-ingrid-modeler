@@ -20,7 +20,7 @@ Type `vs-code-ingrid-modeler` in the Extensions section and directly install it.
 **HIGHT PRIO**
 
 * I am not escaping the newlines, which means that some formatter will remove them in your xml file
-* Before you can write documentation code to a NEW Task you just created, you have to save the BPMN diagram first
+* (FIXED) Before you can write documentation code to a NEW Task you just created, you have to save the BPMN diagram first
 * (FIXED) Having bpmn files with the same name and task might cause problems
 * (FIXED) Changes check is globally but should be set per file
 * (FIXED) only supported bpmn2 tags
@@ -31,10 +31,10 @@ Type `vs-code-ingrid-modeler` in the Extensions section and directly install it.
 * No New Button yet for new bpmn diagrams
 * Syntax highlighting not working yet, might create another extension or include it in this one
 * Should not load all node_modules, makes it slower --> bundle scripts
-* Everytime you save code, the bpmn modeler zooms back in
 * adding highlight but check beforehand if document is saved
 * Everytime you reopen the workspace, close the Edit BPMN Window and Temporary Element Editor
 * Saving diagrams only only possible with `CTRL + s`
+* highlights and other states like zoom positioning get lost after saving a task because modeler gets refreshed
 
 ## Development Setup
 

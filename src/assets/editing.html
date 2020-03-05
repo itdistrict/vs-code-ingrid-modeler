@@ -104,8 +104,16 @@
                 });
 
                 bpmnModeler.on("element.changed", function (event) {
-                    var element = event.element;
-                    console.log(element, "Changed")
+                    bpmnModeler.saveXML({ format: true }, function (err, result) {
+                        if (err) {
+                            return console.error('could not save BPMN 2.0 diagram', err);
+                        }
+
+                        vscode.postMessage({
+                            command: 'bufferDiagram',
+                            content: result
+                        });
+                    });
                 });
 
             });

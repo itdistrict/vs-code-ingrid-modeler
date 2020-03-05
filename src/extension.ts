@@ -68,10 +68,37 @@ function createPanel(
           openEditor(uri, getDocumentationFromElement(uri, message.id), message.id);
           return;
         case 'saveContent':
-
-
+          /*
+                    var dom = new jsdom.JSDOM(message.content, { contentType: "text/xml" });
+                    var elNode = dom
+                      .window.document
+                      .querySelectorAll(`bpmn2\\:documentation`);
+          
+                    elNode.forEach(element => {
+                      console.log(element.textContent);
+                      console.log("----------------------");
+                      var lines = element.textContent.split(/\r\n|\r|\n/g);
+                      var linesString = "";
+                      lines.forEach(line => {
+                        linesString += ((line.length && line[0] == ' ') ? line.slice(1) : line) + "&#xD;\r\n"
+                      });
+          
+                      element.textContent = linesString;
+          
+          
+                      console.log(linesString);
+                      console.log("\n----------next element------------\n");
+                    });
+                    console.log(dom.serialize());
+          */
 
           //saveFile(uri, message.content);
+          return;
+        case 'bufferDiagram':
+          var index = repository.getIndex(uri);
+          if (index > -1) {
+            repository.cache[index].buffer = message.content;
+          }
           return;
       }
     },
@@ -105,7 +132,7 @@ function makeid(length: number) {
 }
 
 
-function openEditor(uri: vscode.Uri, content: String, id: String) {
+function openEditor(uri: vscode.Uri, content: String, id: string) {
   let tempdir = vscode.workspace.getConfiguration(extName).get('tmpDir') || os.tmpdir();
   var filepath = vscode.Uri.file(tempdir + path.sep + path.basename(uri.fsPath) + "." + makeid(5) + ".tmpl");
 
@@ -124,8 +151,9 @@ function openEditor(uri: vscode.Uri, content: String, id: String) {
   vscode.workspace
     .openTextDocument(filepath)
     .then(document => {
-      vscode.window.showTextDocument(document, vscode.ViewColumn.Beside, true);
-      vscode.languages.setTextDocumentLanguage(document, "gohtml");
+      console.log("SHOW THIS SHIT");
+      vscode.window.showTextDocument(document, vscode.ViewColumn.Beside, false);
+      //vscode.languages.setTextDocumentLanguage(document, "gohtml");
     });
 }
 
@@ -137,7 +165,7 @@ function getFileContent(uri: vscode.Uri) {
 function saveFile(uri: vscode.Uri, content: String) {
   const { fsPath: docPath } = uri.with({ scheme: 'vscode-resource' });
   if (!content) {
-    content = "\n";
+    fs.unlinkSync(docPath);
   }
   fs.writeFileSync(docPath, content, { encoding: 'utf8' });
 }
@@ -244,10 +272,18 @@ export function deactivate() { }
 
 vscode.workspace.onDidSaveTextDocument((document) => {
   var index = repository.getIndexByTmp(document.uri);
+  var content = "";
   if (index > -1) {
-    console.log(repository.cache[index].lastElement);
+    if (repository.cache[index].buffer) {
+      // Save buffer first
+      console.log("Using from buffer");
+      content = repository.cache[index].buffer;
+      repository.cache[index].buffer = "";
+    } else {
+      content = getFileContent(repository.cache[index].uri);
+    }
 
-    const dom = new jsdom.JSDOM(getFileContent(repository.cache[index].uri), { contentType: "text/xml" });
+    const dom = new jsdom.JSDOM(content, { contentType: "text/xml" });
     let id = repository.cache[index].lastElement;
 
     var elNode = dom.window.document.querySelector(`[id="${id}"]`);

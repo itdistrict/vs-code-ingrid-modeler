@@ -32,7 +32,7 @@ export class Repository {
         return -1;
     }
 
-    updateLastElement(uri: vscode.Uri, lastElement: String) {
+    updateLastElement(uri: vscode.Uri, lastElement: string) {
         let index = this.getIndex(uri);
         if (index > -1) {
             this.cache[index].lastElement = lastElement;
@@ -41,14 +41,16 @@ export class Repository {
 }
 
 class BPMNFile {
-    lastElement: String
+    lastElement: string
     uri: vscode.Uri
     tmpFile: vscode.Uri
     unsaved: boolean
+    buffer: string
     constructor(uri: vscode.Uri, tmpFile: vscode.Uri) {
         this.lastElement = "";
         this.uri = uri;
         this.tmpFile = tmpFile;
-        this.unsaved = false
+        this.unsaved = false;
+        this.buffer = "";
     }
 }
