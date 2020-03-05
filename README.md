@@ -25,7 +25,10 @@ Type `vs-code-ingrid-modeler` in the Extensions section and directly install it.
 * Having bpmn files with the same name and task might cause problems
 * Everytime you save code, the bpmn modeler zooms back in
 * Changes check is globally but should be set per file
-* Should not load all node_modules, makes it slower
+* Should not load all node_modules, makes it slower --> bundle scripts
+* only supported bpmn2 tags
+* Saving diagrams only only possible with `CTRL + s`
+* **WARNING**: I am not escaping the newlines, which means that some formatter will remove them in your xml file
 
 
 ## Development Setup
