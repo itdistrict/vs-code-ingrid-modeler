@@ -3,7 +3,7 @@
   "displayName": "Ingrid Modeler",
   "description": "VS Code Extension for Creating and Editing Ingrid BPMN 2.0 Files, based on bpmn.io",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "itdistrict",
   "repository": "https://github.com/itdistrict/vs-code-ingrid-modeler/",
   "engines": {
@@ -31,6 +31,26 @@
           ".bpmn",
           ".bpmn20.xml"
         ]
+      },
+      {
+        "id": "gotemplate",
+        "aliases": [
+          "Golang Text Template",
+          "gotemplate"
+        ],
+        "extensions": [
+          ".gotmpl",
+          ".tmpl",
+          ".tpl"
+        ],
+        "configuration": "./gotemplate.configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "gotemplate",
+        "scopeName": "source.gotemplate",
+        "path": "./syntaxes/gotemplate.tmLanguage"
       }
     ],
     "commands": [

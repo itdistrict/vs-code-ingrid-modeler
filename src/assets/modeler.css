@@ -72,13 +72,22 @@ body, html {
   }
 }
 
+/*
+* ingrid styling
+*/
+
+.djs-direct-editing-content {
+  color: #3C4858 !important;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji" !important;
+}
+
 .djs-visual rect {
   fill: #eceff2 !important;
   stroke: #eceff2 !important;
 }
 
 .highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
-  fill: green !important; /* color elements as green */
+  fill: #80CBC4 !important;
 }
 
 .djs-shape .djs-visual {

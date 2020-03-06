@@ -49,6 +49,8 @@ function createPanel(
 
   // set content
   panel.webview.html = provider.provideTextDocumentContent(uri);
+  // init file
+  repository.newFile(uri);
 
   // set panel icons
   const {
@@ -56,8 +58,8 @@ function createPanel(
   } = context;
 
   panel.iconPath = {
-    light: getUri(extensionPath, 'resources', 'logo_light_panel.png'),
-    dark: getUri(extensionPath, 'resources', 'logo_dark_panel.png')
+    light: getUri(extensionPath, 'resources', 'icon_light.svg'),
+    dark: getUri(extensionPath, 'resources', 'icon_dark.svg')
   };
 
   // handling messages from the webview content
@@ -68,31 +70,7 @@ function createPanel(
           openEditor(uri, getDocumentationFromElement(uri, message.id), message.id);
           return;
         case 'saveContent':
-          /*
-                    var dom = new jsdom.JSDOM(message.content, { contentType: "text/xml" });
-                    var elNode = dom
-                      .window.document
-                      .querySelectorAll(`bpmn2\\:documentation`);
-          
-                    elNode.forEach(element => {
-                      console.log(element.textContent);
-                      console.log("----------------------");
-                      var lines = element.textContent.split(/\r\n|\r|\n/g);
-                      var linesString = "";
-                      lines.forEach(line => {
-                        linesString += ((line.length && line[0] == ' ') ? line.slice(1) : line) + "&#xD;\r\n"
-                      });
-          
-                      element.textContent = linesString;
-          
-          
-                      console.log(linesString);
-                      console.log("\n----------next element------------\n");
-                    });
-                    console.log(dom.serialize());
-          */
-
-          //saveFile(uri, message.content);
+          saveFile(uri, transformDocumentations(message.content));
           return;
         case 'bufferDiagram':
           var index = repository.getIndex(uri);
@@ -109,11 +87,32 @@ function createPanel(
   return { panel, resource: uri, provider };
 }
 
+function transformDocumentations(content: string): string {
+  var dom = new jsdom.JSDOM(content, { contentType: "text/xml" });
+  var nsPrefix = dom.window.document.firstElementChild.prefix;
+  var elNode = dom
+    .window.document
+    .querySelectorAll(`${nsPrefix}\\:documentation`);
+
+  elNode.forEach(element => {
+    var lines = element.textContent.split(/\r\n|\r|\n/g);
+    var linesString = "";
+    lines.forEach((line, key: number, arr) => {
+      linesString += ((line.length && line[0] == ' ') ? line.slice(1) : line) + ((arr.length - 1 === key) ? "" : "!amp!#xD;\r\n")
+    });
+    element.textContent = linesString;
+  });
+  let final = dom.serialize().replace(/\!amp\!/g, "&");
+  return `<?xml version="1.0" encoding="UTF-8"?>\r\n${final}`;
+}
+
 function getDocumentationFromElement(uri: vscode.Uri, id: String) {
   var content = getFileContent(uri);
-  var elNode = new jsdom.JSDOM(content, { contentType: "text/xml" })
-    .window.document
-    .querySelector(`[id="${id}"] > bpmn2\\:documentation`);
+  var dom = new jsdom.JSDOM(content, { contentType: "text/xml" });
+  var nsPrefix = dom.window.document.firstElementChild.prefix;
+
+  var elNode = dom.window.document
+    .querySelector(`[id="${id}"] > ${nsPrefix}\\:documentation`);
 
   if (elNode !== null) {
     return elNode.textContent;
@@ -142,7 +141,9 @@ function openEditor(uri: vscode.Uri, content: String, id: string) {
       vscode.window.showErrorMessage("Could not load editor because you have unsaved changes.");
       return;
     }
-    filepath = repository.cache[index].tmpFile;
+    if (repository.cache[index].tmpFile) {
+      filepath = repository.cache[index].tmpFile;
+    }
   }
   saveFile(filepath, content);
   repository.newOrUpdateFile(uri, filepath);
@@ -151,9 +152,8 @@ function openEditor(uri: vscode.Uri, content: String, id: string) {
   vscode.workspace
     .openTextDocument(filepath)
     .then(document => {
-      console.log("SHOW THIS SHIT");
       vscode.window.showTextDocument(document, vscode.ViewColumn.Beside, false);
-      //vscode.languages.setTextDocumentLanguage(document, "gohtml");
+      vscode.languages.setTextDocumentLanguage(document, "gotemplate");
     });
 }
 
@@ -164,7 +164,7 @@ function getFileContent(uri: vscode.Uri) {
 
 function saveFile(uri: vscode.Uri, content: String) {
   const { fsPath: docPath } = uri.with({ scheme: 'vscode-resource' });
-  if (!content) {
+  if (!content && fs.existsSync(docPath)) {
     fs.unlinkSync(docPath);
   }
   fs.writeFileSync(docPath, content, { encoding: 'utf8' });
@@ -271,6 +271,7 @@ export function deactivate() { }
 // listener
 
 vscode.workspace.onDidSaveTextDocument((document) => {
+
   var index = repository.getIndexByTmp(document.uri);
   var content = "";
   if (index > -1) {
@@ -284,20 +285,22 @@ vscode.workspace.onDidSaveTextDocument((document) => {
     }
 
     const dom = new jsdom.JSDOM(content, { contentType: "text/xml" });
+    var nsPrefix = dom.window.document.firstElementChild.prefix;
     let id = repository.cache[index].lastElement;
 
     var elNode = dom.window.document.querySelector(`[id="${id}"]`);
     if (elNode !== null) {
-      var elDoc = elNode.querySelector(`bpmn2\\:documentation`)
+      var elDoc = elNode.querySelector(`${nsPrefix}\\:documentation`)
+      var elementContent = document.getText();
       if (elDoc !== null) {
-        elDoc.textContent = document.getText();
+        elDoc.textContent = elementContent;
       } else {
-        var element = dom.window.document.createElement("bpmn2:documentation");
-        element.textContent = document.getText();
+        var element = dom.window.document.createElement(`${nsPrefix}:documentation`);
+        element.textContent = elementContent;
         element.id = "Documentation_" + makeid(8)
         elNode.appendChild(element);
       }
-      saveFile(repository.cache[index].uri, dom.serialize());
+      saveFile(repository.cache[index].uri, transformDocumentations(dom.serialize()));
     }
   }
 });

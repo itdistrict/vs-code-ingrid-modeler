@@ -87,7 +87,7 @@
                 events.forEach(function (event) {
 
                     eventBus.on(event, function (e) {
-                        if (event == "element.click" && checkTypes(e.element.id, ["Task", "Activity", "StartEvent", "EndEvent", "Gateway"])) {
+                        if (event == "element.click" && checkTypes(e.element.id, ["Task", "Activity", "Event", "StartEvent", "EndEvent", "Gateway"])) {
                             setTimeout(function () {
                                 if (shiftPressed) {
                                     let canvas = bpmnModeler.get('canvas');

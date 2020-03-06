@@ -6,12 +6,20 @@ export class Repository {
     constructor() {
         this.cache = [];
     }
+
+    newFile(uri: vscode.Uri) {
+        this.cache.push(new BPMNFile(uri));
+    }
+
     newOrUpdateFile(uri: vscode.Uri, tmpFile: vscode.Uri) {
         let index = this.getIndex(uri);
         if (index > -1) {
+            this.cache[index].setTmpFile(tmpFile);
             return; // Nothing to do yet
         }
-        this.cache.push(new BPMNFile(uri,tmpFile));
+        let file = new BPMNFile(uri);
+        file.setTmpFile(tmpFile);
+        this.cache.push(file);
     }
 
     getIndex(uri: vscode.Uri) {
@@ -46,11 +54,14 @@ class BPMNFile {
     tmpFile: vscode.Uri
     unsaved: boolean
     buffer: string
-    constructor(uri: vscode.Uri, tmpFile: vscode.Uri) {
+    constructor(uri: vscode.Uri) {
         this.lastElement = "";
         this.uri = uri;
-        this.tmpFile = tmpFile;
         this.unsaved = false;
         this.buffer = "";
+    }
+
+    setTmpFile(tmpFile: vscode.Uri) {
+        this.tmpFile = tmpFile;
     }
 }
