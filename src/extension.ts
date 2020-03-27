@@ -133,12 +133,12 @@ function makeid(length: number) {
 
 function openEditor(uri: vscode.Uri, content: String, id: string) {
   let tempdir = vscode.workspace.getConfiguration(extName).get('tmpDir') || os.tmpdir();
-  var filepath = vscode.Uri.file(tempdir + path.sep + path.basename(uri.fsPath) + "." + makeid(5) + ".tmpl");
+  var filepath = vscode.Uri.file(tempdir + path.sep + path.basename(uri.fsPath) + '.' + makeid(5) + '.tmpl');
 
   var index = repository.getIndex(uri);
   if (index > -1) {
     if (repository.cache[index].unsaved) {
-      vscode.window.showErrorMessage("Could not load editor because you have unsaved changes.");
+      vscode.window.showErrorMessage('Could not load editor because you have unsaved changes.');
       return;
     }
     if (repository.cache[index].tmpFile) {
@@ -153,7 +153,7 @@ function openEditor(uri: vscode.Uri, content: String, id: string) {
     .openTextDocument(filepath)
     .then(document => {
       vscode.window.showTextDocument(document, vscode.ViewColumn.Beside, false);
-      vscode.languages.setTextDocumentLanguage(document, "gotemplate");
+      vscode.languages.setTextDocumentLanguage(document, 'gotemplate');
     });
 }
 

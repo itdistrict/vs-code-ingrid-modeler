@@ -81,7 +81,7 @@ body, html {
   font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji" !important;
 }
 
-.djs-visual rect {
+.djs-element:not(.djs-frame) .djs-visual rect {
   fill: #eceff2 !important;
   stroke: #eceff2 !important;
 }
@@ -105,10 +105,9 @@ body, html {
   stroke-width: 2px !important;
 }
 
-.djs-shape .djs-visual path {
+.djs-element[data-element-id^="Gateway"] .djs-visual path {
   fill: #f3f3f3 !important;
   stroke: #f3f3f3 !important;
-
 }
 
 .djs-visual polygon {   

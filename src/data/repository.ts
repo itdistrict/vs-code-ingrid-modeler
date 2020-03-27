@@ -24,7 +24,7 @@ export class Repository {
 
     getIndex(uri: vscode.Uri) {
         for (let i = 0; i < this.cache.length; i++) {
-            if (this.cache[i].uri.fsPath === uri.fsPath) {
+            if (this.cache[i].uri && this.cache[i].uri.fsPath === uri.fsPath) {
                 return i
             }
         }
@@ -33,7 +33,7 @@ export class Repository {
 
     getIndexByTmp(uri: vscode.Uri) {
         for (let i = 0; i < this.cache.length; i++) {
-            if (this.cache[i].tmpFile.fsPath === uri.fsPath) {
+            if (this.cache[i].tmpFile && this.cache[i].tmpFile.fsPath === uri.fsPath) {
                 return i
             }
         }
@@ -49,16 +49,17 @@ export class Repository {
 }
 
 class BPMNFile {
-    lastElement: string
-    uri: vscode.Uri
-    tmpFile: vscode.Uri
-    unsaved: boolean
-    buffer: string
+    lastElement: string;
+    uri: vscode.Uri;
+    tmpFile: vscode.Uri;
+    unsaved: boolean;
+    buffer: string;
     constructor(uri: vscode.Uri) {
-        this.lastElement = "";
+        this.lastElement = '';
         this.uri = uri;
         this.unsaved = false;
-        this.buffer = "";
+        //this.tmpFile = {} as vscode.Uri;
+        this.buffer = '';
     }
 
     setTmpFile(tmpFile: vscode.Uri) {
