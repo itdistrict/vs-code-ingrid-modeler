@@ -3,7 +3,7 @@
     "displayName": "Ingrid Modeler",
     "description": "VS Code Extension for Creating and Editing Ingrid BPMN 2.0 Files, based on bpmn.io",
     "license": "MIT",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "publisher": "itdistrict",
     "repository": "https://github.com/itdistrict/vs-code-ingrid-modeler/",
     "engines": {

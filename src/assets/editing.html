@@ -87,7 +87,25 @@
                 events.forEach(function (event) {
 
                     eventBus.on(event, function (e) {
-                        if (event == "element.click" && checkTypes(e.element.id, ["Task", "Activity", "Event", "StartEvent", "EndEvent", "Gateway", "ExclusiveGateway", "InclusiveGateway", "ParallelGateway", "ComplexGateway"])) {
+                        var prefIDs = [
+                            "Task",
+                            "Activity",
+                            "Event",
+                            "StartEvent",
+                            "EndEvent",
+                            "Gateway",
+                            "ExclusiveGateway",
+                            "InclusiveGateway",
+                            "ParallelGateway",
+                            "ComplexGateway",
+                            "DataObjectReference"
+                        ];
+
+                        var prefTypes = [
+                            "bpmn:DataObjectReference"
+                        ];
+
+                        if (event == "element.click" && (checkTypes(e.element.id, prefIDs) || checkTypes(e.element.type, prefTypes) )) {
                             setTimeout(function () {
                                 if (shiftPressed) {
                                     let canvas = bpmnModeler.get('canvas');
